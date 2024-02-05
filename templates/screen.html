@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js"> <!--<![endif]-->
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title>Screenshots | Upwork Account Management</title>
+	<meta name="description"
+		content="This is a Flask (Python microframework) use Datatables.js Ajax source application.">
+	<meta name="author" content="rosickey">
+	<link rel="stylesheet"
+		href="{{ url_for('static', filename='css/cdn.jsdelivr.net_npm_bootstrap@5.2.3_dist_css_bootstrap.min.css') }}">
+	<script
+		src="{{ url_for('static', filename='js/cdn.jsdelivr.net_npm_bootstrap@5.2.3_dist_js_bootstrap.bundle.min.js') }}"></script>
+</head>
+
+<body>
+	<div id="demo" class="carousel slide">
+
+		<!-- Indicators/dots -->
+		<div class="carousel-indicators" style="background-color:rgba(0, 0, 255, 0.7);">
+			{% for image in image_files %}
+			<button type="button" data-bs-target="#demo" data-bs-slide-to="{{ loop.index - 1 }}" class="{% if loop.index == 1 %} active{% endif %}"></button>
+			{% endfor %}
+		</div>
+
+		<!-- The slideshow/carousel -->
+		<div class="carousel-inner">
+			{% for image in image_files %}
+			<div class="carousel-item{% if loop.index == 1 %} active{% endif %}" style="width:100vw;height:100vh;">
+				<img src="{{ url_for('static', filename=image) }}" alt="{{ image }}" class="d-block" style="width: 100%;height: 100%;object-fit: contain;">
+				<div style="position:absolute;width:100%;top:10%;display:flex;">
+					<span onclick="copyToClipboard(this)" style="background:gray;margin:auto;color:white;padding:10px;border-radius:10px;cursor:pointer;">{{ image[2:-4] }}</span>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+
+		<!-- Left and right controls/icons -->
+		<button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev" style="background-color:rgb(0 0 0 / 15%)">
+			<span class="carousel-control-prev-icon"></span>
+		</button>
+		<button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next" style="background-color:rgb(0 0 0 / 15%)">
+			<span class="carousel-control-next-icon"></span>
+		</button>
+	</div>
+	<script type="text/javascript">
+		function copyToClipboard(element) {
+			const text = element.innerText;
+
+
+	      	// Create a temporary textarea element
+	      	const textarea = document.createElement('textarea');
+	      	textarea.value = text;
+
+	      	// Append the textarea to the DOM
+	      	document.body.appendChild(textarea);
+
+	      	// Select the textarea's content
+	      	textarea.select();
+
+	      	try {
+	        	// Execute the copy command
+	        	const success = document.execCommand('copy');
+	        	if (success) {
+	          		console.log('Text copied to clipboard');
+	        	} else {
+	          		console.error('Unable to copy text to clipboard');
+	        	}
+	      	} catch (error) {
+	        	console.error('Failed to copy text: ', error);
+	      	}
+
+		      // Remove the textarea from the DOM
+		      document.body.removeChild(textarea);
+	    }
+	</script>
+</body>
+
+</html>
