@@ -38,26 +38,13 @@
 		table = $('#example').DataTable({
 			ajax: "{{ url_for('get_server_data') }}",
 		});
-
-		// Add event listener for checkbox select all
-		$('#select_all').on('click', function (e) {
-			e.preventDefault();
-			$('input[name="id"]').prop('checked', this.checked);
-		});
 	});
 </script>
 
 <body>
 	<div class="container">
 		<div class="d-flex justify-content-end" style="margin: 20px 0;gap: 10px;">
-			<button id="refresh" type="button" class="btn btn-info">REFRESH</button>
-			<div class="d-flex" style="gap: 10px">
-				<input type="text" class="form-control" placeholder="Enter name" name="cname" id="cname">
-				<input type="number" class="form-control" placeholder="Enter number" name="cnum" id="cnum">
-				<button id="create" type="button" class="btn btn-info">CREATE</button>
-			</div>
-			<button id="remove" type="button" class="btn btn-danger">REMOVE</button>
-			<button id="opentosee" type="button" class="btn btn-dark">OPEN TO SEE</button>
+			<button id="refresh" type="button" class="btn btn-primary">REFRESH ALL</button>
 		</div>
 		<table id="example" class="table table-striped table-hover" style="width:100%">
 			<thead>
@@ -65,8 +52,7 @@
 					{% for col in columns %}
 					<th>{{ col }}</th>
 					{% endfor %}
-					<th></th> <!-- Add a header cell -->
-					<th></th> <!-- Add checkbox header cell -->
+					
 				</tr>
 			</thead>
 			<tbody>
@@ -79,194 +65,29 @@
 				{% endfor %}
 			</tbody>
 		</table>
-		<div class="row" style="margin: 20px 0;">
-			<div class="col">
-				<input type="email" class="form-control" placeholder="Enter email to add to your database" name="email" id="email">
-			</div>
-			<div class="col">
-				<input type="text" class="form-control" placeholder="Enter name" name="name" id="name">
-			</div>
-			<div class="col">
-				<button id="add" type="button" class="btn btn-success">ADD</button>
-			</div>
-			<div class="col d-flex justify-content-end" style="gap: 20px;">
-				<input type="text" class="form-control" placeholder="Enter Status" name="status" id="status" value="sent">
-				<button id="change" type="button" class="btn btn-primary">Change</button>
-			</div>
-		</div>
 	</div>
 
 	<script>
-		$('#create').on('click', () => {
-			const name = $('#cname').val();
-			const num = $('#cnum').val();
-			if ((name == "" ? confirm("Do you want to around all of your profiles?") : true) && num) {
-				$.ajax({
-					type: 'POST',
-					url: '/create',
-					data: { name: name, num: num },
-					success: function (response) {
-						alert(response);
-						table.ajax.reload();
-					},
-					error: function (xhr, status, error) {
-						console.error(error);
-					}
-				});
-			}
-		})
-
 		$('#refresh').on('click', () => {
 			table.ajax.reload();
 		})
 
-		$('#remove').on('click', () => {
-			const ids = [];
-			$('input[name="id"]').each(function () {
-				if ($(this).prop('checked')) ids.push($(this).attr('value'));
-			})
-			if (ids) {
-				if (confirm('You selected items ' + ids + "\nDo you really want to remove them?")) {
-					$.ajax({
-						type: 'POST',
-						url: '/remove',
-						contentType: 'application/json',
-						data: JSON.stringify({ ids: ids }),
-						success: function (response) {
-							alert(response);
-							table.ajax.reload();
-						},
-						error: function (xhr, status, error) {
-							console.error(error);
-						}
-					});
+		function download(element) {
+			const text = element.parentElement.parentElement.children.item(2).firstChild.textContent;
+			$.ajax({
+				type: 'POST',
+				url: '/get_download_link',
+				contentType: 'application/json',
+				data: JSON.stringify({ code: text }),
+				success: function (response) {
+					console.log(response)
+					window.location.href = response
+				},
+				error: function (xhr, status, error) {
+					console.error(error);
 				}
-			}
-		})
-
-		$('#add').on('click', () => {
-			const email = $('#email').val();
-			const name = $('#name').val();
-			if (name && email) {
-				$.ajax({
-					type: 'POST',
-					url: '/add',
-					contentType: 'application/json',
-					data: JSON.stringify({ email: email, name: name }),
-					success: function (response) {
-						alert(response);;
-						table.ajax.reload();
-					},
-					error: function (xhr, status, error) {
-						console.error(error);
-					}
-				});
-			}
-		})
-
-
-		$('#change').on('click', () => {
-			const ids = [];
-			$('input[name="id"]').each(function () {
-				if ($(this).prop('checked')) ids.push($(this).attr('value'));
-			})
-			const status = $('#status').val();
-			if (ids && status) {
-				if (confirm('You selected items ' + ids + "\nDo you really want to change status of them?")) {
-					$.ajax({
-						type: 'POST',
-						url: '/change-status',
-						contentType: 'application/json',
-						data: JSON.stringify({ status: status, ids: ids }),
-						success: function (response) {
-							alert(response);
-							table.ajax.reload();
-						},
-						error: function (xhr, status, error) {
-							console.error(error);
-						}
-					});
-				}
-			}
-		})
-
-		$('#opentosee').on('click', () => {
-			const ids = [];
-			$('input[name="id"]').each(function () {
-				if ($(this).prop('checked')) ids.push($(this).attr('value'));
-			})
-			if (ids) {
-				$.ajax({
-					type: 'POST',
-					url: '/open-to-see',
-					contentType: 'application/json',
-					data: JSON.stringify({ id: ids[0] }),
-					success: function (response) {
-						alert(response);
-						table.ajax.reload();
-					},
-					error: function (xhr, status, error) {
-						console.error(error);
-					}
-				});
-			}
-		})
-
-		$('#screenshot').on('click', () => {
-			window.open("/show-screenshots", "_blank");
-			const ids = [];
-			$('input[name="id"]').each(function () {
-				if ($(this).prop('checked')) ids.push($(this).attr('value'));
-			})
-			if (ids) {
-				$.ajax({
-					type: 'POST',
-					url: '/screenshot',
-					contentType: 'application/json',
-					data: JSON.stringify({ ids: ids }),
-					success: function (response) {
-						alert(response);
-					},
-					error: function (xhr, status, error) {
-						console.error(error);
-					}
-				});
-			}
-		})
-
-		$(document).on('click', 'td', function () {
-			if ($(this)[0].lastChild.tagName != 'INPUT') $(this)[0].parentElement.children.item(6).firstChild.click();
-		})
-
-		function copyToClipboard(element) {
-			const text = element.parentElement.parentElement.children.item(1).firstChild.textContent;
-
-
-	      	// Create a temporary textarea element
-	      	const textarea = document.createElement('textarea');
-	      	textarea.value = text;
-
-	      	// Append the textarea to the DOM
-	      	document.body.appendChild(textarea);
-
-	      	// Select the textarea's content
-	      	textarea.select();
-
-	      	try {
-	        	// Execute the copy command
-	        	const success = document.execCommand('copy');
-	        	if (success) {
-	          		console.log('Text copied to clipboard');
-	        	} else {
-	          		console.error('Unable to copy text to clipboard');
-	        	}
-	      	} catch (error) {
-	        	console.error('Failed to copy text: ', error);
-	      	}
-
-		      // Remove the textarea from the DOM
-		      document.body.removeChild(textarea);
-	    }
+			});
+		}
 
 	</script>
 </body>
