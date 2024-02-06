@@ -73,7 +73,7 @@
 		})
 
 		function download(element) {
-			const text = element.parentElement.parentElement.children.item(2).firstChild.textContent;
+			const text = element.parentElement.parentElement.children.item(4).firstChild.textContent;
 			$.ajax({
 				type: 'POST',
 				url: '/get_download_link',

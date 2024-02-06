@@ -2,7 +2,8 @@
 
 import requests, json, os
 from flask import Flask, request, render_template
-from dotenv import load_dotenv 
+from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -17,7 +18,7 @@ headers = {
 app = Flask(__name__)
 # app.debug = True
 
-columns = ['Name', 'URL', 'code', '']
+columns = ['Name', 'Image', 'Update At', 'Purchase At', 'code', '']
 
 def getAllData():
     returnData = []
@@ -27,8 +28,10 @@ def getAllData():
         data = requests.get("https://api.envato.com/v3/market/buyer/list-purchases", params={'page': page}, headers=headers).json()
         for i in range(len(data['results'])):
             returnData.append([
-                data['results'][i]['item']['name'],
-                f"<a href=\"{data['results'][i]['item']['url']}\" target=\"_blank\">{data['results'][i]['item']['url']}</a>",
+                f"<a href=\"{data['results'][i]['item']['url']}\" target=\"_blank\">{data['results'][i]['item']['name']}</a>",
+                f"<img src=\"{data['results'][i]['item']['previews']['landscape_preview']['landscape_url'] if data['results'][i]['item']['previews'].get('landscape_preview') else ''}\"></img>",
+                datetime.fromisoformat(data['results'][i]['item']['updated_at']).strftime('%Y-%m-%d'),
+                datetime.fromisoformat(data['results'][i]['sold_at']).strftime('%Y-%m-%d'),
                 data['results'][i]['code'],
                 '<button type="button" class="btn btn-success" onclick="download(this)">Download</button>',
             ])
